@@ -8,7 +8,7 @@ const userScehem = mongoose.Schema(
             required: true,
             trim: true
         },
-        email: {
+        emailphone: {
             type: String,
             required: true
         },

@@ -1,6 +1,8 @@
 const nodemailer = require('nodemailer')
 
 const sendmail = async (email,subject,message) => {
+
+    console.log( process.env.NODEMAILER_MAIL,process.env.NODEMAILER_APPKEY)
     try {
         const transporter = nodemailer.createTransport({
             service: 'gmail',

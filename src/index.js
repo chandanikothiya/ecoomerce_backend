@@ -3,12 +3,19 @@ const express = require('express')
 const mongoDbconnection = require('./databseconnection/mongoDbconnection')
 const routes = require('./routes/api/v1/index')
 const cookieParser = require('cookie-parser');
+const cors = require('cors')
 
 const app = express()
 
 // app.get('/',(req,res) => {
 //     res.send("hello world")
 // })
+
+app.use(cors({
+    origin:'http://localhost:5174',
+    optionsSuccessStatus:200,
+    credentials:true
+}))
 
 mongoDbconnection();
 app.use(cookieParser());

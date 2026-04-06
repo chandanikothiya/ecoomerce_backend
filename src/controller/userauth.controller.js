@@ -33,9 +33,9 @@ const genratetoken = async (_id) => {
 const adduser = async (req, res) => {
     try {
         console.log(req.body)
-        const { email, password } = req.body;
+        const { emailphone, password } = req.body;
 
-        const userexists = await users.findOne({ email: email })
+        const userexists = await users.findOne({ emailphone: emailphone })
 
         if (userexists) {
             return res.status(400).json({
@@ -58,9 +58,9 @@ const adduser = async (req, res) => {
             })
         }
 
-        await sendmail(email, 'registration otp', `Your otp is ${otp}`);
+        await sendmail(emailphone, 'registration otp', `Your otp is ${otp}`);
 
-        const userdata = await users.findOne({ email: email }).select("-password -otp")
+        const userdata = await users.findOne({ emailphone: emailphone }).select("-password -otp")
 
         res.status(200).json({
             success: true,
@@ -80,13 +80,13 @@ const adduser = async (req, res) => {
 const verifyuser = async (req, res) => {
     try {
 
-        const { email, otp } = req.body;
+        const { emailphone, otp } = req.body;
 
-        const user = await users.findOne({ email: email, otp: otp })
+        const user = await users.findOne({ emailphone: emailphone, otp: otp })
 
         if (!user) {
             res.status(400).json({
-                sucess: false,
+                success: false,
                 data: [],
                 message: 'Invalid Email or Otp'
             })
@@ -96,14 +96,14 @@ const verifyuser = async (req, res) => {
         await user.save();
 
         res.status(200).json({
-            sucess: true,
+            success: true,
             data: user,
             message: 'registraton complete'
         })
 
     } catch (error) {
         res.status(400).json({
-            sucess: false,
+            success: false,
             data: [],
             message: 'internal sever error at verify email ' + error.messgae
         })
@@ -113,9 +113,9 @@ const verifyuser = async (req, res) => {
 const loginuser = async (req, res) => {
     try {
 
-        const { email, password } = req.body;
+        const { emailphone, password } = req.body;
 
-        const user = await users.findOne({ email: email });
+        const user = await users.findOne({ emailphone: emailphone });
 
         if (!user) {
             res.status(400).json({
@@ -309,19 +309,20 @@ const checkauth = async (req, res) => {
 }
 
 const forgetpassword = async (req, res) => {
+    console.log(req.body)
     try {
-        const user = await users.findOne({ email: req.body.email })
+        const user = await users.findOne({ emailphone: req.body.emailphone })
 
         if (!user) {
             res.status(400).json({
                 success: false,
                 data: [],
-                messge: 'email is not found'
+                message: 'email is not found'
             })
         }
 
         const forgetotp = Math.floor(1000 + Math.random() * 9000);
-        await sendmail(req.body.email, 'Forget Password OTP', `Your OTP is ${forgetotp}`)
+        await sendmail(req.body.emailphone, 'Forget Password OTP', `Your OTP is ${forgetotp}`)
 
         user.otp = forgetotp;
         await user.save();
@@ -330,22 +331,22 @@ const forgetpassword = async (req, res) => {
             res.status(400).json({
                 success: false,
                 data: [],
-                messge: 'Forget password not set to user'
+                message: 'Forget password not set to user'
             })
         }
 
-        const userdata = await users.findOne({ email: req.body.email }).select("-password -otp")
+        const userdata = await users.findOne({ email: req.body.emailphone }).select("-password -otp")
 
         res.status(200).json({
             success: true,
             data: userdata,
-            messge: 'user update at forget otp set'
+            message: 'forget otp send'
         })
     } catch (error) {
         res.status(400).json({
             success: false,
             data: [],
-            messge: 'internal server error at send foget otp' + error.message
+            message: 'internal server error at send foget otp' + error.message
 
         })
     }
@@ -353,27 +354,27 @@ const forgetpassword = async (req, res) => {
 
 const resetpassword = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email,otp,password } = req.body;
 
-        const user = await users.findOne({ email: email });
+        const user = await users.findOne({ emailphone: email,opt:otp });
 
         if (!user) {
             res.status(400).json({
                 success: false,
                 data: [],
-                messge: 'user not found by email'
+                message: 'user not found by email or OTP not match'
             })
         }
 
         const hashpassword = await bcrypt.hash(password, 10);
 
-        if (!user.isverify) {
-            res.status(400).json({
-                success: false,
-                data: null,
-                messge: 'email is not verifyed'
-            })
-        }
+        // if (!user) {
+        //     res.status(400).json({
+        //         success: false,
+        //         data: null,
+        //         message: 'Otp is not matched'
+        //     })
+        // }
 
         user.password = hashpassword;
         user.save();
@@ -391,14 +392,14 @@ const resetpassword = async (req, res) => {
         res.status(200).json({
             success: true,
             data: userdata,
-            messge: 'forget password successfully'
+            message: 'forget password successfully'
         })
 
     } catch (error) {
         res.status(500).json({
             success: true,
             data: null,
-            messge: 'internal sever erorr at forget password ' + error.message
+            message: 'internal sever erorr at forget password ' + error.message
         })
     }
 }
