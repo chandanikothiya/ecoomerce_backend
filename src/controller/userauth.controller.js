@@ -353,13 +353,14 @@ const forgetpassword = async (req, res) => {
 }
 
 const resetpassword = async (req, res) => {
+    console.log(req.body)
     try {
-        const { email,otp,password } = req.body;
+        const { emailphone,otp,password } = req.body;
 
-        const user = await users.findOne({ emailphone: email,opt:otp });
+        const user = await users.findOne({ emailphone: emailphone,otp:Number(otp) });
 
         if (!user) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 data: [],
                 message: 'user not found by email or OTP not match'
@@ -379,15 +380,15 @@ const resetpassword = async (req, res) => {
         user.password = hashpassword;
         user.save();
 
-        if (!user) {
-            res.status(400).json({
-                success: false,
-                data: null,
-                message: 'user password not update'
-            })
-        }
+        // if (!user) {
+        //     res.status(400).json({
+        //         success: false,
+        //         data: null,
+        //         message: 'user password not update'
+        //     })
+        // }
 
-        const userdata = await users.findOne({ email: email }).select("-password -otp")
+        const userdata = await users.findOne({ emailphone: emailphone }).select("-password -otp")
 
         res.status(200).json({
             success: true,
