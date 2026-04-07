@@ -3,27 +3,40 @@ const express = require('express')
 const mongoDbconnection = require('./databseconnection/mongoDbconnection')
 const routes = require('./routes/api/v1/index')
 const cookieParser = require('cookie-parser');
-const cors = require('cors')
-
+const cors = require('cors');
+const googleprovider = require('./services/socialprovider');
+const passport = require('passport');
+const session = require('express-session');
 const app = express()
 
 // app.get('/',(req,res) => {
 //     res.send("hello world")
 // })
 
-app.use(cors({
-    origin:'http://localhost:5173',
-    optionsSuccessStatus:200,
-    credentials:true
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true,
 }))
+
+app.use(cors({
+    origin: 'http://localhost:5173',
+    optionsSuccessStatus: 200,
+    credentials: true
+}))
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+googleprovider();
 
 mongoDbconnection();
 app.use(cookieParser());
 app.use(express.json());
 
 //http://localhost:8080/api/v1
-app.use('/api/v1',routes)
+app.use('/api/v1', routes)
 
-app.listen(8080,() =>  {
+app.listen(8080, () => {
     console.log('server is running on port 8080')
 })

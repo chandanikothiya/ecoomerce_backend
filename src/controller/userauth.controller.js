@@ -2,6 +2,15 @@ const users = require('../model/userauthmodel')
 const bcrypt = require('bcrypt');
 const sendmail = require('../services/nodemailer');
 const jwt = require('jsonwebtoken');
+const sendSMS = require('../services/senssms');
+
+const isEmail = (input) => {
+    return input.includes("@")
+}
+
+const isPhone = (input) => {
+    return /^[0-9]{10}$/.test(input)
+}
 
 const genratetoken = async (_id) => {
     try {
@@ -9,7 +18,7 @@ const genratetoken = async (_id) => {
         const user = await users.findById(_id);
 
         const accesstoken = jwt.sign(
-            { _id, "expire": "1h", "role": user.role },
+            { _id, "role": user.role },
             process.env.ACCESS_TOKEN_KEY,
             { expiresIn: 60 * 60 }
         )
@@ -21,7 +30,7 @@ const genratetoken = async (_id) => {
         )
 
         user.refreshtoken = refreshtoken;
-        user.save();
+        await user.save();
 
         return { accesstoken, refreshtoken }
 
@@ -35,7 +44,41 @@ const adduser = async (req, res) => {
         console.log(req.body)
         const { emailphone, password } = req.body;
 
-        const userexists = await users.findOne({ emailphone: emailphone })
+        let data = {
+            name: req.body.name,
+        }
+
+        if (isEmail(emailphone)) {
+            data.email = emailphone;
+        } else if (isPhone(emailphone)) {
+            data.phone = emailphone
+        }
+
+        let conditions = [];
+        if (data.email) {
+            conditions.push({ email: data.email })
+        };
+        if (data.phone) {
+            conditions.push({ phone: data.phone });
+        }
+
+
+        let userexists = await users.findOne(
+            {
+                $or: conditions
+            }
+        );
+
+        // if (isEmail(emailphone)) {
+        //     console.log("email")
+        //     userexists = await users.findOne({ email: emailphone.toLowerCase() });
+        // } else if (isPhone(emailphone)) {
+        //     console.log("phone")
+        //     userexists = await users.findOne({ phone: emailphone });
+        // }
+        // console.log(userexists)
+
+        // const userexists = await users.findOne({ emailphone: emailphone })
 
         if (userexists) {
             return res.status(400).json({
@@ -48,7 +91,7 @@ const adduser = async (req, res) => {
         const hashpassword = await bcrypt.hash(password, 10)
         const otp = Math.floor(1000 + Math.random() * 9000)
 
-        const user = await users.create({ ...req.body, password: hashpassword, otp: otp });
+        const user = await users.create({ ...data, password: hashpassword, otp: otp });
 
         if (!user) {
             res.status(400).json({
@@ -58,14 +101,18 @@ const adduser = async (req, res) => {
             })
         }
 
-        await sendmail(emailphone, 'registration otp', `Your otp is ${otp}`);
+        if (isEmail(emailphone)) {
+            await sendmail(emailphone, 'registration otp', `Your otp is ${otp}`);
+        } else if (isPhone(emailphone)) {
+            sendSMS(emailphone, otp)
+        }
 
         const userdata = await users.findOne({ emailphone: emailphone }).select("-password -otp")
 
         res.status(200).json({
             success: true,
             data: userdata,
-            message: 'registration complete'
+            message: 'signup complete'
         })
 
     } catch (error) {
@@ -82,13 +129,24 @@ const verifyuser = async (req, res) => {
 
         const { emailphone, otp } = req.body;
 
-        const user = await users.findOne({ emailphone: emailphone, otp: otp })
+        let user = '';
+        let data = ''
+
+        if (isEmail(emailphone)) {
+            user = await users.findOne({ email: emailphone, otp: otp });
+            data = 'email'
+        } else if (isPhone(emailphone)) {
+            user = await users.findOne({ phone: emailphone, otp: otp })
+            data = 'phone'
+        }
+
+
 
         if (!user) {
             res.status(400).json({
                 success: false,
                 data: [],
-                message: 'Invalid Email or Otp'
+                message: `Invalid ${data} or Otp`
             })
         }
 
@@ -114,14 +172,24 @@ const loginuser = async (req, res) => {
     try {
 
         const { emailphone, password } = req.body;
+        let user = '';
+        let data = ''
 
-        const user = await users.findOne({ emailphone: emailphone });
+        if (isEmail(emailphone)) {
+            user = await users.findOne({ email: emailphone });
+            data = 'email'
+        } else if (isPhone(emailphone)) {
+            user = await users.findOne({ phone: emailphone })
+            data = 'phone'
+        }
+
+        //const user = await users.findOne({ emailphone: emailphone });
 
         if (!user) {
             res.status(400).json({
                 success: false,
                 data: [],
-                message: 'Invalid Email'
+                message: `Invalid ${data}`
             })
         }
 
@@ -310,19 +378,36 @@ const checkauth = async (req, res) => {
 
 const forgetpassword = async (req, res) => {
     console.log(req.body)
+
+    let user = '';
+    let data = '';
+
     try {
-        const user = await users.findOne({ emailphone: req.body.emailphone })
+        if (isEmail(req.body.emailphone)) {
+            user = await users.findOne({ email: req.body.emailphone });
+            data = 'email'
+        } else if (isPhone(req.body.emailphone)) {
+            user = await users.findOne({ phone: req.body.emailphone })
+            data = 'phone'
+        }
+        // const user = await users.findOne({ emailphone: req.body.emailphone })
 
         if (!user) {
             res.status(400).json({
                 success: false,
                 data: [],
-                message: 'email is not found'
+                message:`${data} is not found`
             })
         }
 
         const forgetotp = Math.floor(1000 + Math.random() * 9000);
-        await sendmail(req.body.emailphone, 'Forget Password OTP', `Your OTP is ${forgetotp}`)
+       // await sendmail(req.body.emailphone, 'Forget Password OTP', `Your OTP is ${forgetotp}`)
+
+         if (isEmail(req.body.emailphone)) {
+            await sendmail(req.body.emailphone, 'Forget Password OTP', `Your otp is ${forgetotp}`);
+        } else if (isPhone(req.body.emailphone)) {
+            sendSMS(req.body.emailphone, forgetotp)
+        }
 
         user.otp = forgetotp;
         await user.save();
@@ -355,15 +440,26 @@ const forgetpassword = async (req, res) => {
 const resetpassword = async (req, res) => {
     console.log(req.body)
     try {
-        const { emailphone,otp,password } = req.body;
+        const { emailphone, otp, password } = req.body;
 
-        const user = await users.findOne({ emailphone: emailphone,otp:Number(otp) });
+        let user = ''
+        let data = ''
+
+        if (isEmail(emailphone)) {
+            user = await users.findOne({ email:emailphone,otp: Number(otp)});
+            data = 'email'
+        } else if (isPhone(emailphone)) {
+            user = await users.findOne({ phone:emailphone,otp: Number(otp) })
+            data = 'phone'
+        }
+
+        //const user = await users.findOne({ emailphone: emailphone, otp: Number(otp) });
 
         if (!user) {
             return res.status(400).json({
                 success: false,
                 data: [],
-                message: 'user not found by email or OTP not match'
+                message:` user not found by ${data} or OTP not match`
             })
         }
 
@@ -388,7 +484,14 @@ const resetpassword = async (req, res) => {
         //     })
         // }
 
-        const userdata = await users.findOne({ emailphone: emailphone }).select("-password -otp")
+        let userdata = ''
+         if (isEmail(emailphone)) {
+            userdata = await users.findOne({ email:emailphone}).select("-password -otp");         
+        } else if (isPhone(emailphone)) {
+            userdata = await users.findOne({ phone:emailphone}).select("-password -otp");       
+        }
+
+        //const userdata = await users.findOne({ emailphone: emailphone }).select("-password -otp")
 
         res.status(200).json({
             success: true,
@@ -408,6 +511,7 @@ const resetpassword = async (req, res) => {
 module.exports = {
     adduser,
     verifyuser,
+    genratetoken,
     loginuser,
     logoutuser,
     genratenewtoken,

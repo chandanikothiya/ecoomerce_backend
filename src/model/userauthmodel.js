@@ -8,24 +8,33 @@ const userScehem = mongoose.Schema(
             required: true,
             trim: true
         },
-        emailphone: {
+        email: {
             type: String,
-            required: true
+            unique: true,
+            sparse: true // allow null
+            //  required: true
+        },
+        phone: {
+            type: String,
+            unique: true,
+            sparse: true // allow null
         },
         password: {
             type: String,
-            required: true
         },
-        otp:{
-            type:Number,
-            required:true
+        otp: {
+            type: Number,
+
         },
         isverify: {
             type: Boolean,
             default: false
         },
-          refreshtoken: {
+        refreshtoken: {
             type: String
+        },
+        profileid: {
+            type: Number
         }
 
     },
