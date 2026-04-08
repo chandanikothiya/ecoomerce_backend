@@ -240,6 +240,7 @@ const loginuser = async (req, res) => {
 
 const logoutuser = async (req, res) => {
     try {
+        console.log(req.body)
         const { _id } = req.body;
 
         const user = await users.findByIdAndUpdate(
@@ -334,7 +335,7 @@ const checkauth = async (req, res) => {
         const token = req.cookies.accesstoken || req.header("Authorization")?.replace("Bearer", "");
 
         if (!token) {
-            return res.status(400).json({
+            return res.status(401).json({
                 success: false,
                 data: null,
                 message: 'user signout'
