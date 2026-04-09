@@ -27,6 +27,7 @@ const getCategory = async (req, res) => {
 }
 
 const addCategory = async (req, res) => {
+    console.log(req.body)
     try {
 
         const checkcat = await category.findOne({ name: req.body.name })
@@ -37,6 +38,10 @@ const addCategory = async (req, res) => {
                 data: null,
                 message: 'category alerdy exists'
             })
+        }
+
+        if (req.body.parentcategory_id === '') {
+            req.body.parentcategory_id = null
         }
 
         const catgeory = await category.create(req.body);
