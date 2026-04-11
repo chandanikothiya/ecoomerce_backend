@@ -75,12 +75,13 @@ const addproducts = async (req, res) => {
 
 const updateproducts = async (req, res) => {
     try {
-        console.log(req.file)
+        console.log("files",req.files)
+        console.log(req.body)
 
         const checkproduct = await products.findById(req.params.id);
         console.log(checkproduct)
 
-        let updatdata = { ...req.body }
+        let updatdata = { ...req.body,product_img: checkproduct.product_img}
         console.log(updatdata)
 
         if (req.files) {
