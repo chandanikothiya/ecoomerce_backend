@@ -19,9 +19,19 @@ const productsschema = mongoose.Schema({
         type: Number,
         default: 0
     },
-    product_img: [{
-       type: String
-    }],
+    variants:[
+        {
+            color:{
+                type:String
+                
+            },
+            images:[
+                {
+                    type:String
+                }
+            ]
+        }
+    ],
     // product_img:{
     //     type: String
     // },

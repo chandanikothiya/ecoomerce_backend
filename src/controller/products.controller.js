@@ -29,9 +29,11 @@ const getproducts = async (req, res) => {
 }
 
 const addproducts = async (req, res) => {
-    console.log(req.files)
+    console.log("files", req.files)
+    console.log("body", req.body)
     try {
-
+        console.log("product", products)
+        console.log("NAME:", req.body.name);
         const checkproduct = await products.findOne({ name: req.body.name })
 
         if (checkproduct) {
@@ -41,14 +43,29 @@ const addproducts = async (req, res) => {
                 message: 'product alerady exists'
             })
         }
+        console.log("STEP 2", checkproduct);
 
         let pro_img = [];
 
-        req.files.map((v) => {
-            pro_img.push(v.path)
-        })
+        let variants = JSON.parse(req.body.variants);
+        console.log("parsed variants", variants);
 
-        const product = await products.create({ ...req.body, product_img: pro_img });
+        let vari = []
+
+        variants.map((v, i) => {
+            //vari.push({color:v.color})
+            const imges = req.files.filter((v) => v.fieldname === `variant_images_${i}`).map(file => file.path);
+            console.log(imges)
+            vari.push({ color: v.color, images: imges })
+
+        })
+        console.log("var", vari)
+
+        // req.files.map((v) => {
+        //     pro_img.push(v.path)
+        // })
+
+        const product = await products.create({ ...req.body, variants: vari });
 
         if (!product) {
             return res.status(400).json({
@@ -65,6 +82,8 @@ const addproducts = async (req, res) => {
         })
 
     } catch (error) {
+        console.log(" ERROR:", error); // ✅ ADD THIS
+
         return res.status(500).json({
             success: false,
             data: null,
@@ -75,32 +94,98 @@ const addproducts = async (req, res) => {
 
 const updateproducts = async (req, res) => {
     try {
-        console.log("files",req.files)
-        console.log(req.body)
+        console.log("files", req.files)
+        console.log("body", req.body)
 
         const checkproduct = await products.findById(req.params.id);
-        console.log(checkproduct)
+        console.log("checkproduct", checkproduct)
 
-        let updatdata = { ...req.body,product_img: checkproduct.product_img}
-        console.log(updatdata)
+        let updatdata = { ...req.body, variants: checkproduct.variants }
+        console.log("updatdata", updatdata)
 
-        if (req.files) {
+        let variants = JSON.parse(req.body.variants);
+        let updatedVariants = [];
 
-            checkproduct.product_img.map((v) => {
-                fs.unlink(v, (error) => {
-                    console.log("image not delte at update", error)
-                })
-            })
+        variants.forEach((v, i) => {
 
-            let pro_img = [];
+            const newImages = (req.files || [])
+                .filter(file => file.fieldname === `variant_images_${i}`)
+                .map(file => file.path);
 
-            req.files.map((v) => {
-                pro_img.push(v.path)
-            })
+            const oldImages = checkproduct.variants[i]?.images || [];
 
-            updatdata.product_img = pro_img
+            let bodyImages = v.images || [];
 
-        }
+            if (!Array.isArray(bodyImages)) {
+                bodyImages = [bodyImages];
+            }
+
+            // 🔥 VERY IMPORTANT
+            bodyImages = bodyImages.filter(img => typeof img === "string");
+
+            console.log("OLD:", oldImages);
+            console.log("BODY:", bodyImages);
+
+            // 🔴 delete removed images
+            const deletedImages = oldImages.filter(img => !bodyImages.includes(img));
+
+            deletedImages.forEach(img => {
+                fs.unlink(img, (err) => {
+                    if (err) console.log("delete error", err);
+                });
+            });
+
+            // ✅ final images
+            const finalImages = [...bodyImages, ...newImages];
+
+            updatedVariants.push({
+                color: v.color,
+                images: finalImages
+            });
+
+        });
+
+        const updatepro = await products.findByIdAndUpdate(
+            req.params.id,
+            {
+                name: req.body.name,
+                price: req.body.price,
+                category_id: req.body.category_id,
+                discount: req.body.discount,
+                variants: updatedVariants
+            },
+            { new: true }
+        );
+
+        // if (req.files.length > 0) {
+
+        //     let bodyImages = req.body.product_img || [];
+
+        //     if (!Array.isArray(bodyImages)) {
+        //         bodyImages = [bodyImages];
+        //     }
+
+        //     console.log("ok")
+        //     const fimg = checkproduct?.product_img?.filter((v) => !bodyImages.includes(v));
+        //     console.log("fimg", fimg)
+
+        //     if (fimg) {
+        //         fimg.map((v) => {
+        //             fs.unlink(v, (error) => {
+        //                 console.log("image not delte at update", error)
+        //             })
+        //         })
+        //     }
+
+        //     let pro_img = [];
+
+        //     req.files.map((v) => {
+        //         pro_img.push(v.path)
+        //     })
+
+        //     updatdata.product_img = [...bodyImages, ...pro_img]
+
+        // }
 
         if (!checkproduct) {
             return res.status(400).json({
@@ -110,11 +195,14 @@ const updateproducts = async (req, res) => {
             })
         }
 
-        const updatepro = await products.findByIdAndUpdate(
-            req.params.id,
-            updatdata,
-            { new: true, runValidators: true }
-        )
+        // const oldimages = checkproduct.product_img;
+        // let bodyimages = req.body.
+
+        // const updatepro = await products.findByIdAndUpdate(
+        //     req.params.id,
+        //     updatdata,
+        //     { new: true, runValidators: true }
+        // )
 
         if (!updatepro) {
             return res.status(400).json({

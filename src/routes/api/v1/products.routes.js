@@ -4,11 +4,11 @@ const upload = require('../../../middleware/upload')
 const router = express.Router()
 
 //http://localhost:8080/api/v1/product/addproducts
-router.post('/addproducts',upload.array('product_img',10),productsController.addproducts)
+router.post('/addproducts',upload.any(),productsController.addproducts)
 
 router.get('/getproducts',productsController.getproducts)
 
-router.put('/updateproducts/:id',upload.array('product_img',10),productsController.updateproducts)
+router.put('/updateproducts/:id',upload.any(),productsController.updateproducts)
 
 router.delete('/deleteproducts/:id',productsController.deleteproducts)
 

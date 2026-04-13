@@ -5,10 +5,19 @@ const fs = require('fs');
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         console.log("file", file)
-        const filepath = path.join('public', 'images', file.fieldname);
 
-        fs.mkdir(filepath,{recursive:true},(error) => {
-            console.log("at upload mkdir",error)
+        let filepath = ''
+
+        if (file.fieldname.startsWith("variant_images")) {
+             filepath = path.join('public', 'images','Product_img');
+        } else {
+             filepath = path.join('public', 'images', file.fieldname);
+        }
+
+        //const filepath = path.join('public', 'images', file.fieldname);
+
+        fs.mkdir(filepath, { recursive: true }, (error) => {
+            console.log("at upload mkdir", error)
         })
 
         cb(null, filepath)
