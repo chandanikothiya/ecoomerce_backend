@@ -15,10 +15,10 @@ const productsschema = mongoose.Schema({
         type: Number,
         require: true
     },
-    discount: {
-        type: Number,
-        default: 0
-    },
+    // discount: {
+    //     type: Number,
+    //     default: 0
+    // },
     variants:[
         {
             color:{
