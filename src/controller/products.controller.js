@@ -140,7 +140,8 @@ const updateproducts = async (req, res) => {
 
             updatedVariants.push({
                 color: v.color,
-                images: finalImages
+                images: finalImages,
+                size:v.size
             });
 
         });
@@ -152,7 +153,8 @@ const updateproducts = async (req, res) => {
                 price: req.body.price,
                 category_id: req.body.category_id,
                 discount: req.body.discount,
-                variants: updatedVariants
+                variants: updatedVariants,
+               
             },
             { new: true }
         );

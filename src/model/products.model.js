@@ -15,21 +15,25 @@ const productsschema = mongoose.Schema({
         type: Number,
         require: true
     },
+
     // discount: {
     //     type: Number,
     //     default: 0
     // },
-    variants:[
+    variants: [
         {
-            color:{
-                type:String
-                
+            color: {
+                type: String
+
             },
-            images:[
+            images: [
                 {
-                    type:String
+                    type: String
                 }
-            ]
+            ],
+            size:[{
+                type: String,
+            }],
         }
     ],
     // product_img:{
