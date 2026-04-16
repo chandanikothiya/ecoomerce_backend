@@ -5,6 +5,7 @@ const categoryRouter = require('./category.routes')
 const userauthRouter = require('./userauth.routes')
 const productRouter = require('./products.routes')
 const cartRouter = require('./cart.routes')
+const wishlistRouter = require('./wishlist.routes')
 
 //http://localhost:8080/api/v1/category
 router.use('/category',categoryRouter);
@@ -17,5 +18,8 @@ router.use('/product',productRouter);
 
 //http://localhost:8080/api/v1/cart
 router.use('/cart',cartRouter);
+
+//http://localhost:8080/api/v1/wishlist
+router.use('/wishlist',wishlistRouter)
 
 module.exports = router;
