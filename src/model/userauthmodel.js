@@ -35,6 +35,9 @@ const userScehem = mongoose.Schema(
         },
         profileid: {
             type: Number
+        },
+        address:{
+            type:String
         }
 
     },

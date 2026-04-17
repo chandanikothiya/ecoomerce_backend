@@ -397,14 +397,14 @@ const forgetpassword = async (req, res) => {
             res.status(400).json({
                 success: false,
                 data: [],
-                message:`${data} is not found`
+                message: `${data} is not found`
             })
         }
 
         const forgetotp = Math.floor(1000 + Math.random() * 9000);
-       // await sendmail(req.body.emailphone, 'Forget Password OTP', `Your OTP is ${forgetotp}`)
+        // await sendmail(req.body.emailphone, 'Forget Password OTP', `Your OTP is ${forgetotp}`)
 
-         if (isEmail(req.body.emailphone)) {
+        if (isEmail(req.body.emailphone)) {
             await sendmail(req.body.emailphone, 'Forget Password OTP', `Your otp is ${forgetotp}`);
         } else if (isPhone(req.body.emailphone)) {
             sendSMS(req.body.emailphone, forgetotp)
@@ -447,10 +447,10 @@ const resetpassword = async (req, res) => {
         let data = ''
 
         if (isEmail(emailphone)) {
-            user = await users.findOne({ email:emailphone,otp: Number(otp)});
+            user = await users.findOne({ email: emailphone, otp: Number(otp) });
             data = 'email'
         } else if (isPhone(emailphone)) {
-            user = await users.findOne({ phone:emailphone,otp: Number(otp) })
+            user = await users.findOne({ phone: emailphone, otp: Number(otp) })
             data = 'phone'
         }
 
@@ -460,7 +460,7 @@ const resetpassword = async (req, res) => {
             return res.status(400).json({
                 success: false,
                 data: [],
-                message:` user not found by ${data} or OTP not match`
+                message: ` user not found by ${data} or OTP not match`
             })
         }
 
@@ -486,10 +486,10 @@ const resetpassword = async (req, res) => {
         // }
 
         let userdata = ''
-         if (isEmail(emailphone)) {
-            userdata = await users.findOne({ email:emailphone}).select("-password -otp");         
+        if (isEmail(emailphone)) {
+            userdata = await users.findOne({ email: emailphone }).select("-password -otp");
         } else if (isPhone(emailphone)) {
-            userdata = await users.findOne({ phone:emailphone}).select("-password -otp");       
+            userdata = await users.findOne({ phone: emailphone }).select("-password -otp");
         }
 
         //const userdata = await users.findOne({ emailphone: emailphone }).select("-password -otp")
@@ -509,6 +509,92 @@ const resetpassword = async (req, res) => {
     }
 }
 
+const getuser = async (req, res) => {
+    try {
+
+        const userdata = await users.findById(req.params.id)
+
+        if (!userdata) {
+            return res.status(400).json({
+                success: false,
+                data: null,
+                message: 'users not found'
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: userdata,
+            message: 'users  found'
+        })
+
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            data: null,
+            message: 'internal server error at users found ' + error.message
+        })
+    }
+}
+
+const edituser = async (req, res) => {
+    try {
+
+        const finduser = await users.findById(req.params.id)
+        console.log(finduser)
+        console.log(req.body, finduser)
+
+        let updatdata = { ...req.body }
+
+        if (req.body.oldpassword && req.body.oldpassword.trim() !== "") {
+            const checkpass = await bcrypt.compare(req.body.oldpassword, finduser.password);
+
+
+            if (!checkpass) {
+                return res.status(400).json({
+                    success: false,
+                    data: null,
+                    message: 'cuurent password not match'
+                })
+            }
+
+          const hashpassword = await bcrypt.hash(req.body.password, 10)
+            updatdata = { ...req.body, password: hashpassword }
+        }
+
+
+
+
+        const useredit = await users.findByIdAndUpdate(
+            req.params.id,
+            updatdata,
+            { new: true, runValidators: true }
+        )
+
+        if (!useredit) {
+            return res.status(400).json({
+                success: false,
+                data: null,
+                message: 'data not edit'
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: useredit,
+            message: 'your data edit successfully'
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            data: null,
+            message: 'internal server error at users edit ' + error.message
+        })
+    }
+}
+
 module.exports = {
     adduser,
     verifyuser,
@@ -518,5 +604,7 @@ module.exports = {
     genratenewtoken,
     checkauth,
     forgetpassword,
-    resetpassword
+    resetpassword,
+    getuser,
+    edituser
 }

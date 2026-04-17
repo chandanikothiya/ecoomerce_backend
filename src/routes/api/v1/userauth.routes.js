@@ -21,6 +21,11 @@ router.post('/forgetpassword',userauthController.forgetpassword);
 
 router.post('/resetpassword',userauthController.resetpassword);
 
+router.get('/getuser/:id',userauthController.getuser);
+
+router.put('/edituser/:id',userauthController.edituser);
+
+
 //http://localhost:8080/api/v1/user/auth/google
 router.get('/auth/google',
   passport.authenticate('google', { scope: ['profile','email'] }));
