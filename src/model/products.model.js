@@ -31,9 +31,28 @@ const productsschema = mongoose.Schema({
                     type: String
                 }
             ],
-            size:[{
+            size: [{
                 type: String,
             }],
+            isFlashSale: {
+                type: Boolean,
+                default: false
+            },
+
+            flashPrice: {
+                type: Number,
+                default: null
+            },
+
+            flashStart: {
+                type: Date,
+                default: null
+            },
+
+            flashEnd: {
+                type: Date,
+                default: null
+            }
         }
     ],
     // product_img:{

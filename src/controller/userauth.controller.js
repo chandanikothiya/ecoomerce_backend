@@ -282,9 +282,27 @@ const genratenewtoken = async (req, res) => {
     try {
         console.log(req.cookies)
 
-        const decodetoken = jwt.verify(req.cookies.refreshtoken, process.env.REFRESH_TOKEN_KEY);
-        console.log(decodetoken)
+        const refreshToken = req.cookies.refreshtoken;
 
+        // ✅ 1. Check if token exists
+        if (!refreshToken) {
+            return res.status(401).json({
+                success: false,
+                message: 'refresh token missing'
+            });
+        }
+
+        let decodetoken;
+
+        // ✅ 2. Catch jwt.verify error
+        try {
+            decodetoken = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_KEY);
+        } catch (err) {
+            return res.status(401).json({
+                success: false,
+                message: 'refresh token invalid or expired'
+            });
+        }
         const user = await users.findById(decodetoken._id);
 
         if (!user) {
@@ -322,7 +340,7 @@ const genratenewtoken = async (req, res) => {
                 message: 'token genrate successfully'
             })
     } catch (error) {
-        res.status(400).json({
+        res.status(500).json({
             success: false,
             data: null,
             message: 'internal sever error at new token genrate ' + error.message
@@ -559,7 +577,7 @@ const edituser = async (req, res) => {
                 })
             }
 
-          const hashpassword = await bcrypt.hash(req.body.password, 10)
+            const hashpassword = await bcrypt.hash(req.body.password, 10)
             updatdata = { ...req.body, password: hashpassword }
         }
 

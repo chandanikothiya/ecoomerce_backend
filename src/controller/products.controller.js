@@ -141,7 +141,11 @@ const updateproducts = async (req, res) => {
             updatedVariants.push({
                 color: v.color,
                 images: finalImages,
-                size:v.size
+                size:v.size,
+                isFlashSale:v.isFlashSale,
+                flashPrice:v.flashPrice,
+                flashStart:v.flashStart,
+                flashEnd:v.flashEnd
             });
 
         });
