@@ -103,7 +103,7 @@ const deleteCart = async (req, res) => {
 
         const { variant_id } = req.body;
 
-        console.log(req.body)
+        console.log("deletecaertbody",req.body,req.params.id)
 
         const checkuser = await cart.findOne({ user_id: req.params.id})
 
