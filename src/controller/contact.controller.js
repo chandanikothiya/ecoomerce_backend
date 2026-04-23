@@ -66,7 +66,46 @@ const addconatct = async (req, res) => {
     }
 }
 
+const deleteconatct = async (req, res) => {
+    try {
+        console.log(req.params.id)
+        const contactdata = await contact.findById(req.params.id);
+        console.log(contactdata)
+
+        if (!contactdata) {
+            return res.status(400).json({
+                success: false,
+                data: null,
+                message: 'contact not found'
+            })
+        }
+
+        const contacts = await contact.findByIdAndDelete(req.params.id)
+
+        if (!contacts) {
+            return res.status(400).json({
+                success: false,
+                data: null,
+                message: 'contact,message not delete'
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: contacts,
+            message:  'contact,message delete'
+        })
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            data: null,
+            message: ' internal server error at contact,message delete ' + error.message 
+        })
+    }
+}
+
 module.exports = {
     getconatct,
-    addconatct
+    addconatct,
+    deleteconatct
 }

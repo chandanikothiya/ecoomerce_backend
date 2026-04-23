@@ -186,19 +186,19 @@ const loginuser = async (req, res) => {
         //const user = await users.findOne({ emailphone: emailphone });
 
         if (!user) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 data: [],
-                message: `Invalid ${data}`
+                message: `Invalid email`
             })
         }
 
         const checkpass = await bcrypt.compare(password, user.password);
 
         if (!checkpass) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
-                data: [],
+                data:null,
                 message: 'Invalid Password'
             })
         }
