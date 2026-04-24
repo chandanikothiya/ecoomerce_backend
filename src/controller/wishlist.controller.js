@@ -1,6 +1,33 @@
 
 const wishlist = require('../model/wishlist.model')
 
+const getallWishlist = async (req, res) => {
+    try {
+
+        const wishlistdata = await wishlist.find();
+
+        if (!wishlistdata) {
+            return res.status(400).json({
+                success: false,
+                body: null,
+                message: 'user wishlistdata not found'
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            body: wishlistdata,
+            message: 'wishlistdata fetch'
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            body: null,
+            message: 'internal server error at wishlistdata fetch ' + error.message
+        })
+    }
+}
+
 const getWishlist = async (req, res) => {
     try {
         console.log(req.params.id)
@@ -129,6 +156,7 @@ const deleteWishlist = async (req, res) => {
 }
 
 module.exports = {
+    getallWishlist,
     addWishlist,
     deleteWishlist,
     getWishlist

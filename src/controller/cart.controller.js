@@ -1,5 +1,32 @@
 const cart = require('../model/cart.model')
 
+const getallCart = async (req, res) => {
+   try {
+        console.log(req.params.id)
+        const cartdata = await cart.find();
+
+        if (!cartdata) {
+            return res.status(400).json({
+                success: false,
+                body: null,
+                message: 'cart not found'
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            body: cartdata,
+            message: 'cart fetch'
+        })
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            body: null,
+            message: 'internal server error at cart fetch' + error.message
+        })
+    }
+}
+
 const getCart = async (req, res) => {
     try {
         console.log(req.params.id)
@@ -140,6 +167,7 @@ const deleteCart = async (req, res) => {
 }
 
 module.exports = {
+    getallCart,
     addCart,
     deleteCart,
     getCart
