@@ -9,6 +9,7 @@ const wishlistRouter = require('./wishlist.routes')
 const contactRouter = require('./contact.routes')
 const orderRouter = require('./order.routes')
 const addressRouter = require('./address.routes')
+const paymentRouter = require('./payment.routes')
 
 //http://localhost:8080/api/v1/category
 router.use('/category',categoryRouter);
@@ -33,5 +34,8 @@ router.use('/order',orderRouter)
 
 //http://localhost:8080/api/v1/adress
 router.use('/adress',addressRouter)
+
+//http://localhost:8080/api/v1/payment
+router.use('/payment',paymentRouter)
 
 module.exports = router;

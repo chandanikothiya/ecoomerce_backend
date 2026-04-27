@@ -1,5 +1,65 @@
 const order = require('../model/order.model');
 
+const getallorder = async (req, res) => {
+    try {
+
+        const getorder = await order.find();
+
+        if (!getorder) {
+            return res.status(400).json({
+                success: false,
+                data: [],
+                message: 'orders data not found'
+            })
+        }
+
+      
+
+        return res.status(200).json({
+            success: true,
+            data: getorder,
+            message: 'orders data are found'
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            data: [],
+            message: 'internal server error at orders data found' + error.message
+        })
+    }
+}
+
+const getorder = async (req, res) => {
+    try {
+
+        const getorder = await order.findById(req.params.id);
+
+        if (!getorder) {
+            return res.status(400).json({
+                success: false,
+                data: [],
+                message: 'orders data not found'
+            })
+        }
+
+      
+
+        return res.status(200).json({
+            success: true,
+            data: getorder,
+            message: 'orders data are found'
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            data: [],
+            message: 'internal server error at orders data found' + error.message
+        })
+    }
+}
+
 const addorder = async (req, res) => {
     try {
 
@@ -52,10 +112,14 @@ const updateshippingaddress = async (req, res) => {
         //     { new: true}
         // );
         console.log(checkorder)
-        checkorder.address = {
-            ...checkorder.address.toObject(),  // old data
-            ...req.body                        // new updates
-        };
+
+        const obj = {
+            "streetaddress": req.body.address.streetaddress || checkorder.address.streetaddress,
+            "city": req.body.address.city || checkorder.address.city,
+            "state": req.body.address.state || checkorder.address.state,
+            "pincode": req.body.address.pincode || checkorder.address.pincode,
+        }
+        checkorder.address = obj;
         await checkorder.save();
 
         if (!checkorder) {
@@ -81,9 +145,130 @@ const updateshippingaddress = async (req, res) => {
     }
 }
 
+const updateorderstatus = async (req, res) => {
+    try {
+
+        const checkorder = await order.findById(req.params.id);
+
+        if (!checkorder) {
+            return res.status(400).json({
+                success: false,
+                data: [],
+                message: 'order not exists'
+            })
+        }
+
+        checkorder.orderstatus = req.body.orderstatus;
+        checkorder.save();
+
+        if (!checkorder) {
+            return res.status(400).json({
+                success: false,
+                data: [],
+                message: 'order status not update'
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: checkorder,
+            message: 'order status update'
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            data: [],
+            message: 'internal server error at update status at order' + error.message
+        })
+    }
+}
+
+// const updatepaymentstatus = async (req, res) => {
+//     try {
+
+//         const checkorder = await order.findById(req.params.id);
+
+//         if (!checkorder) {
+//             return res.status(400).json({
+//                 success: false,
+//                 data: [],
+//                 message: 'order not exists'
+//             })
+//         }
+
+//         checkorder.paymentstatus = req.body.paymentstatus;
+//         checkorder.save();
+
+//         if (!checkorder) {
+//             return res.status(400).json({
+//                 success: false,
+//                 data: [],
+//                 message: 'payment status not update'
+//             })
+//         }
+
+//         return res.status(200).json({
+//             success: true,
+//             data: checkorder,
+//             message: 'payment status not update '
+//         })
+
+//     } catch (error) {
+//         return res.status(500).json({
+//             success: false,
+//             data: [],
+//             message: 'internal server error at update payment status at order' + error.message
+//         })
+//     }
+// }
+
+const deleteorder = async (req, res) => {
+    try {
+
+        const checkorder = await order.findById(req.params.id);
+
+        if (!checkorder) {
+            return res.status(400).json({
+                success: false,
+                data: [],
+                message: 'order not exists'
+            })
+        }
+
+       const orderdata = await order.findByIdAndDelete(req.params.id);
+
+        if (!orderdata) {
+            return res.status(400).json({
+                success: false,
+                data: [],
+                message: 'order not delete'
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: orderdata,
+            message: 'order delete'
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            data: [],
+            message: 'internal server error at order not delete' + error.message
+        })
+    }
+}
+
+
 module.exports = {
+    getallorder,
+    getorder,
     addorder,
-    updateshippingaddress
+    updateshippingaddress,
+    updateorderstatus,
+    deleteorder
 }
 
 //  "product_id":"69ddbecbfdcedc9c300fda20",
