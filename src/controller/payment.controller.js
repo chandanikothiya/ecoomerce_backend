@@ -3,6 +3,7 @@ const { Cashfree, CardChannelEnum, AppProviderEnum, CFEnvironment } = require("c
 
 const createpayment = async (req, res) => {
     try {
+        console.log("createpayment",req.body)
         const cashfree = new Cashfree(
             CFEnvironment.SANDBOX,
             process.env.Client_ID,
@@ -10,14 +11,14 @@ const createpayment = async (req, res) => {
         );
         const orderId = "order_" + Math.floor(Math.random() * 100000000);
         var request = {
-            order_amount: "1",
+            order_amount: req.body.orderamt,
             order_currency: "INR",
             order_id: orderId,
             customer_details: {
-                customer_id: "node_sdk_test",
-                customer_name: "",
-                customer_email: "example@gmail.com",
-                customer_phone: "9999999999",
+                customer_id: req.body.customer_id,
+                customer_name: req.body.customer_name,
+                customer_email:req.body.customer_email,
+                customer_phone: req.body.customer_phone,
             },
             order_meta: {
                 return_url:

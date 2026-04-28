@@ -55,7 +55,10 @@ const orderschema = mongoose.Schema({
     orderstatus: {
         type: String,
         enum: ["placed", "shipped", "delivered", "cancelled"],
-        default: "PLACED",
+        default: "placed",
+    },
+    phoneno:{
+        type:Number
     }
 }, {
     timestamps: true,

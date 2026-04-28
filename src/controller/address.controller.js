@@ -1,5 +1,65 @@
 const address = require('../model/address.model');
 
+const getalladdress = async (req, res) => {
+    try {
+
+        console.log(req.body)
+
+        const addressdata = await address.find();
+
+        if (!addressdata) {
+            return res.status(400).json({
+                success: false,
+                data: [],
+                message: 'address not found'
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: addressdata,
+            message: 'address found'
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            data: [],
+            message: 'internal server error at get address' + error.message
+        })
+    }
+}
+const getaddress = async (req, res) => {
+    try {
+
+    console.log("getaddress",req.params.id)
+
+        const addressdata = await address.findOne({user_id:req.params.id});
+        console.log(addressdata)
+
+        if (!addressdata) {
+            return res.status(400).json({
+                success: false,
+                data: [],
+                message: 'address not found'
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: addressdata,
+            message: 'address found'
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            data: [],
+            message: 'internal server error at get address' + error.message
+        })
+    }
+}
+
 const addaddress = async (req, res) => {
     try {
 
@@ -33,7 +93,7 @@ const addaddress = async (req, res) => {
 const updateaddress = async (req, res) => {
     try {
 
-        console.log(req.body)
+        console.log("updateaddress",req.body)
 
         const checkaddress = await address.findById(req.params.id);
 
@@ -76,6 +136,8 @@ const updateaddress = async (req, res) => {
 }
 
 module.exports = {
+    getalladdress,
+    getaddress,
     addaddress,
     updateaddress
 }
