@@ -11,6 +11,8 @@ router.get('/getpayment',paymentController.getpayment)
 
 router.get('/getpaymentonorder/:id',paymentController.getpaymentonorder)
 
+router.get('/getcashfreepayment/:id',paymentController.getcashfreepayment)
+
 //http://localhost:8080/api/v1/payment/addpayment
 router.post('/addpayment',paymentController.addpayment)
 

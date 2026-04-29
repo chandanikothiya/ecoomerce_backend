@@ -1,9 +1,10 @@
+const { default: axios } = require('axios');
 const payment = require('../model/payment.model');
 const { Cashfree, CardChannelEnum, AppProviderEnum, CFEnvironment } = require("cashfree-pg");
 
 const createpayment = async (req, res) => {
     try {
-        console.log("createpayment",req.body)
+        console.log("createpayment", req.body)
         const cashfree = new Cashfree(
             CFEnvironment.SANDBOX,
             process.env.Client_ID,
@@ -13,21 +14,21 @@ const createpayment = async (req, res) => {
         var request = {
             order_amount: req.body.orderamt,
             order_currency: "INR",
-            order_id: orderId,
+            order_id: req.body.order_id,
             customer_details: {
                 customer_id: req.body.customer_id,
                 customer_name: req.body.customer_name,
-                customer_email:req.body.customer_email,
+                customer_email: req.body.customer_email,
                 customer_phone: req.body.customer_phone,
             },
             order_meta: {
-                return_url:
-                    "https://www.cashfree.com/devstudio/preview/pg/web/checkout?order_id={order_id}"
+                "return_url": `http://localhost:5173/payment?order_id=${req.body.order_id}`
             },
             order_note: "",
         };
 
         const response = await cashfree.PGCreateOrder(request);
+        console.log("cashfreeresponse", response)
         //expect(response.data.payment_session_id).toBeDefined();
         return res.status(200).json({
             success: true,
@@ -39,6 +40,52 @@ const createpayment = async (req, res) => {
             success: false,
             data: [],
             message: 'internal server error at craete payment ' + error.message
+        })
+    }
+}
+
+const getcashfreepayment = async (req, res) => {
+    try {
+
+        const options = {
+            method: 'GET',
+            headers: {
+                'x-api-version': '2025-01-01',
+                'x-client-id': process.env.Client_ID,
+                'x-client-secret': process.env.Client_Secret_Key
+            }
+        };
+
+        const resposne = await axios.get(`https://sandbox.cashfree.com/pg/orders/${req.params.id}/payments`, options);
+        console.log("getcashfreepayment", resposne)
+
+        const orderResponse = await axios.get(
+            `https://sandbox.cashfree.com/pg/orders/${req.params.id}`,
+            options
+        );
+
+        console.log("orderResponse.data", orderResponse.data);
+
+        if (!resposne) {
+            return res.status(400).json({
+                success: false,
+                data: [],
+                message: 'payment not get'
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: resposne.data,
+            customer:orderResponse.data,
+            message: 'payment get'
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            data: [],
+            message: 'internal server error at get payment from cashfree by order id ' + error.message
         })
     }
 }
@@ -167,11 +214,10 @@ const getpaymentonorder = async (req, res) => {
     }
 }
 
-
-
 module.exports = {
     getpayment,
     addpayment,
+    getcashfreepayment,
     updatepaymentstatus,
     getpaymentonorder,
     createpayment

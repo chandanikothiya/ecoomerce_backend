@@ -17,8 +17,8 @@ const paymentschema = mongoose.Schema({
     },
     paymentmethod: {
         type: String,
-        enum: ["card", "upi","cod"],
-        default: "COD",
+       //enum: ["card", "upi","cod"],
+        default: "cod",
     },
     paymentstatus: {
         type: String,
