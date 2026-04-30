@@ -59,6 +59,9 @@ const orderschema = mongoose.Schema({
     },
     phoneno:{
         type:Number
+    },
+    invoiceno:{
+        type:String
     }
 }, {
     timestamps: true,

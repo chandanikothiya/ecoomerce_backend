@@ -77,7 +77,7 @@ const getcashfreepayment = async (req, res) => {
         return res.status(200).json({
             success: true,
             data: resposne.data,
-            customer:orderResponse.data,
+            customer: orderResponse.data,
             message: 'payment get'
         })
 
@@ -121,21 +121,25 @@ const getpayment = async (req, res) => {
 const addpayment = async (req, res) => {
     try {
 
-        const paymentdata = payment.create(req.body);
+        const check = await payment.findOne({ transectionid: req.body.transectionid })
 
-        if (!paymentdata) {
-            return res.status(400).json({
-                success: false,
-                data: [],
-                message: 'payment data not add'
+        if (!check) {
+            const paymentdata = payment.create(req.body);
+
+            if (!paymentdata) {
+                return res.status(400).json({
+                    success: false,
+                    data: [],
+                    message: 'payment data not add'
+                })
+            }
+
+            return res.status(200).json({
+                success: true,
+                data: paymentdata,
+                message: 'payment add'
             })
         }
-
-        return res.status(200).json({
-            success: true,
-            data: paymentdata,
-            message: 'payment add'
-        })
 
     } catch (error) {
         return res.status(500).json({

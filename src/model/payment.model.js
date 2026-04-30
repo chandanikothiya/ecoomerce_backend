@@ -22,7 +22,7 @@ const paymentschema = mongoose.Schema({
     },
     paymentstatus: {
         type: String,
-        enum: ["pending", "success", "failed"],
+        enum: ["PENDING", "SUCCESS", "fAILED"],
         default: "PENDING",
     },
     transectionid: {
