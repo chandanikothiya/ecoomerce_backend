@@ -34,6 +34,9 @@ const productsschema = mongoose.Schema({
             size: [{
                 type: String,
             }],
+            quantity:{
+                type:Number
+            },
             isFlashSale: {
                 type: Boolean,
                 default: false

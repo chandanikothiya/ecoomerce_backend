@@ -10,6 +10,7 @@ const contactRouter = require('./contact.routes')
 const orderRouter = require('./order.routes')
 const addressRouter = require('./address.routes')
 const paymentRouter = require('./payment.routes')
+const couponRouter = require('./coupon.routes')
 
 //http://localhost:8080/api/v1/category
 router.use('/category',categoryRouter);
@@ -37,5 +38,8 @@ router.use('/adress',addressRouter)
 
 //http://localhost:8080/api/v1/payment
 router.use('/payment',paymentRouter)
+
+//http://localhost:8080/api/v1/coupon
+router.use('/coupon',couponRouter)
 
 module.exports = router;

@@ -4,17 +4,23 @@ const { Cashfree, CardChannelEnum, AppProviderEnum, CFEnvironment } = require("c
 
 const createpayment = async (req, res) => {
     try {
-        console.log("createpayment", req.body)
+
         const cashfree = new Cashfree(
             CFEnvironment.SANDBOX,
             process.env.Client_ID,
-            process.env.Client_Secret_Key,
+            process.env.Client_Secret_Key
         );
+
+        console.log("ok1")
+
+        const orderAmount = 1;
+
         const orderId = "order_" + Math.floor(Math.random() * 100000000);
-        var request = {
+        const oid = req.body.order_id;
+        const request = {
             order_amount: req.body.orderamt,
             order_currency: "INR",
-            order_id: req.body.order_id,
+            order_id: oid,
             customer_details: {
                 customer_id: req.body.customer_id,
                 customer_name: req.body.customer_name,
@@ -22,27 +28,33 @@ const createpayment = async (req, res) => {
                 customer_phone: req.body.customer_phone,
             },
             order_meta: {
-                "return_url": `http://localhost:5173/payment?order_id=${req.body.order_id}`
+                "return_url": `http://localhost:5173/payment?order_id=${oid}`
             },
-            order_note: "",
         };
 
+        console.log("ok2")
+
         const response = await cashfree.PGCreateOrder(request);
-        console.log("cashfreeresponse", response)
-        //expect(response.data.payment_session_id).toBeDefined();
         return res.status(200).json({
             success: true,
-            payment_session_id: response.data.payment_session_id,
-            orderId: orderId,
+            payment_session_id:
+                response.data.payment_session_id,
+            oid
         });
+
     } catch (error) {
+
+        console.log(
+            "FULL ERROR =>",
+            error.response?.data || error
+        );
+
         return res.status(500).json({
             success: false,
-            data: [],
-            message: 'internal server error at craete payment ' + error.message
-        })
+            message: error.response?.data || error.message
+        });
     }
-}
+};
 
 const getcashfreepayment = async (req, res) => {
     try {
@@ -121,9 +133,27 @@ const getpayment = async (req, res) => {
 const addpayment = async (req, res) => {
     try {
 
-        const check = await payment.findOne({ transectionid: req.body.transectionid })
+        if (req.body.transectionid) {
+            const check = await payment.findOne({ transectionid: req.body.transectionid })
 
-        if (!check) {
+            if (!check) {
+                const paymentdata = payment.create(req.body);
+
+                if (!paymentdata) {
+                    return res.status(400).json({
+                        success: false,
+                        data: [],
+                        message: 'payment data not add'
+                    })
+                }
+
+                return res.status(200).json({
+                    success: true,
+                    data: paymentdata,
+                    message: 'payment add'
+                })
+            }
+        } else {
             const paymentdata = payment.create(req.body);
 
             if (!paymentdata) {
@@ -140,6 +170,7 @@ const addpayment = async (req, res) => {
                 message: 'payment add'
             })
         }
+
 
     } catch (error) {
         return res.status(500).json({

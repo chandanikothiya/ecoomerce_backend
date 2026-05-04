@@ -141,11 +141,12 @@ const updateproducts = async (req, res) => {
             updatedVariants.push({
                 color: v.color,
                 images: finalImages,
-                size:v.size,
-                isFlashSale:v.isFlashSale,
-                flashPrice:v.flashPrice,
-                flashStart:v.flashStart,
-                flashEnd:v.flashEnd
+                size: v.size,
+                quantity: Number(v.quantity),
+                isFlashSale: v.isFlashSale,
+                flashPrice: v.flashPrice,
+                flashStart: v.flashStart,
+                flashEnd: v.flashEnd
             });
 
         });
@@ -158,7 +159,7 @@ const updateproducts = async (req, res) => {
                 category_id: req.body.category_id,
                 discount: req.body.discount,
                 variants: updatedVariants,
-               
+
             },
             { new: true }
         );
