@@ -12,4 +12,6 @@ router.put('/updatecoupon/:id',couponController.updatecoupon)
 
 router.delete('/deletecoupon/:id',couponController.deletecoupon)
 
+router.post('/checkcoupon',couponController.checkcoupon)
+
 module.exports = router

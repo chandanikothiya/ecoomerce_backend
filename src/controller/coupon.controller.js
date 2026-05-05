@@ -15,7 +15,7 @@ const getAllcoupon = async (req, res) => {
 
         return res.status(200).json({
             success: false,
-            data:coupondata,
+            data: coupondata,
             message: 'coupon get'
         })
 
@@ -27,7 +27,6 @@ const getAllcoupon = async (req, res) => {
         })
     }
 }
-
 
 const getcoupon = async (req, res) => {
     try {
@@ -44,7 +43,7 @@ const getcoupon = async (req, res) => {
 
         return res.status(200).json({
             success: false,
-            data:coupondata,
+            data: coupondata,
             message: 'coupon get'
         })
 
@@ -82,7 +81,7 @@ const addcoupon = async (req, res) => {
 
         return res.status(200).json({
             success: false,
-            data:coupondata,
+            data: coupondata,
             message: 'coupon add'
         })
 
@@ -110,7 +109,7 @@ const updatecoupon = async (req, res) => {
 
         const coupondata = await coupon.findByIdAndUpdate(req.params.id,
             req.body,
-            {new:true}
+            { new: true }
         );
 
         if (!coupondata) {
@@ -123,7 +122,7 @@ const updatecoupon = async (req, res) => {
 
         return res.status(200).json({
             success: false,
-            data:coupondata,
+            data: coupondata,
             message: 'coupon update'
         })
 
@@ -135,7 +134,6 @@ const updatecoupon = async (req, res) => {
         })
     }
 }
-
 
 const deletecoupon = async (req, res) => {
     try {
@@ -162,7 +160,7 @@ const deletecoupon = async (req, res) => {
 
         return res.status(200).json({
             success: false,
-            data:coupondata,
+            data: coupondata,
             message: 'coupon delete'
         })
 
@@ -175,10 +173,51 @@ const deletecoupon = async (req, res) => {
     }
 }
 
+const checkcoupon = async (req, res) => {
+    try {
+        console.log(req.body)
+        const check = await coupon.findOne({ code: req.body.code });
+
+        if (!check) {
+            return res.status(400).json({
+                success: false,
+                data: [],
+                message: 'coupon not found'
+            })
+        }
+
+        const date = new Date();
+
+        if (date <= check.enddate) {
+            return res.status(200).json({
+                success: true,
+                data:check,
+                message: 'coupon  found'
+            })
+        } else {
+             return res.status(400).json({
+                success: false,
+                data: [],
+                message: 'coupon is expired'
+            })
+        }
+        console.log(date)
+        // const checkdate;
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            data: [],
+            message: 'internal server error at chech coupon ' + error.message
+        })
+    }
+}
+
 module.exports = {
     addcoupon,
     getAllcoupon,
     getcoupon,
     deletecoupon,
-    updatecoupon
+    updatecoupon,
+    checkcoupon
 }
