@@ -56,7 +56,16 @@ const addproducts = async (req, res) => {
             //vari.push({color:v.color})
             const imges = req.files.filter((v) => v.fieldname === `variant_images_${i}`).map(file => file.path);
             console.log(imges)
-            vari.push({ color: v.color, images: imges })
+            vari.push({
+                color: v.color,
+                images: imges,
+                size: v.size,
+                quantity: v.quantity,
+                isFlashSale: v.isFlashSale,
+                flashPrice: v.flashPrice,
+                flashStart: v.flashStart,
+                flashEnd: v.flashEnd
+            })
 
         })
         console.log("var", vari)
