@@ -173,6 +173,45 @@ const deletecoupon = async (req, res) => {
     }
 }
 
+const changeactive = async (req, res) => {
+    try {
+        console.log(req.body)
+        const check = await coupon.findById(req.params.id)
+
+        if (!check) {
+            return res.status(400).json({
+                success: false,
+                data: [],
+                message: 'coupon not exists'
+            })
+        }
+
+        check.isActive = req.body.isActive;
+        check.save();
+
+        if (!check) {
+            return res.status(400).json({
+                success: false,
+                data: [],
+                message: 'coupon not delete'
+            })
+        }
+
+        return res.status(200).json({
+            success: false,
+            data: check,
+            message: 'coupon delete'
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            data: [],
+            message: 'internal server error at coupon toggle active' + error.message
+        })
+    }
+}
+
 const checkcoupon = async (req, res) => {
     try {
         console.log(req.body)
@@ -219,5 +258,7 @@ module.exports = {
     getcoupon,
     deletecoupon,
     updatecoupon,
-    checkcoupon
+    checkcoupon,
+    changeactive
 }
+

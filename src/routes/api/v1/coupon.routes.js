@@ -10,6 +10,8 @@ router.get('/getcoupon/:id',couponController.getcoupon)
 
 router.put('/updatecoupon/:id',couponController.updatecoupon)
 
+router.put('/changeactive/:id',couponController.changeactive)
+
 router.delete('/deletecoupon/:id',couponController.deletecoupon)
 
 router.post('/checkcoupon',couponController.checkcoupon)
