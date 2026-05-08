@@ -8,9 +8,12 @@ router.post('/addproducts',upload.any(),productsController.addproducts)
 
 router.get('/getproducts',productsController.getproducts)
 
+
 router.put('/updateproducts/:id',upload.any(),productsController.updateproducts)
 
 router.delete('/deleteproducts/:id',productsController.deleteproducts)
+
+//router.put('/updateVariantDates',productsController.updateVariantDates)
 
 module.exports = router;
 

@@ -226,8 +226,10 @@ const checkcoupon = async (req, res) => {
         }
 
         const date = new Date();
+        const endDate = new Date(check.enddate);
+        console.log(date,check.enddate)
 
-        if (date <= check.enddate) {
+        if (date <= endDate) {
             return res.status(200).json({
                 success: true,
                 data:check,

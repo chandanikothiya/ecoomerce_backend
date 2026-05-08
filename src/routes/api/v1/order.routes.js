@@ -6,6 +6,9 @@ router.get('/getallorder',orderController.getallorder)
 
 router.get('/getorder/:id',orderController.getorder)
 
+router.get('/moreselling',orderController.moreselling)
+
+
 //http://localhost:8080/api/v1/order/addorder
 router.post('/addorder',orderController.addorder)
 

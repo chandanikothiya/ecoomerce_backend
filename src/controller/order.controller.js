@@ -13,7 +13,7 @@ const getallorder = async (req, res) => {
             })
         }
 
-      
+
 
         return res.status(200).json({
             success: true,
@@ -43,7 +43,7 @@ const getorder = async (req, res) => {
             })
         }
 
-      
+
 
         return res.status(200).json({
             success: true,
@@ -236,7 +236,7 @@ const deleteorder = async (req, res) => {
             })
         }
 
-       const orderdata = await order.findByIdAndDelete(req.params.id);
+        const orderdata = await order.findByIdAndDelete(req.params.id);
 
         if (!orderdata) {
             return res.status(400).json({
@@ -261,6 +261,58 @@ const deleteorder = async (req, res) => {
     }
 }
 
+const moreselling = async (req, res) => {
+    try {
+
+        const sellingproduct = await order.aggregate([
+            {
+                $unwind: "$products"
+            },
+            {
+                $group: {
+                    _id: '$products.variant_id',
+                    product_id: {
+                        $first: '$products.product_id'
+                    },
+                    totalproduct: {
+                        $sum: 1
+                    }
+                }
+            },
+            {
+                $sort: {
+                    totalproduct: -1
+                }
+            },
+            {
+                $limit: 6
+            }
+        ])
+        console.log(sellingproduct)
+
+        if (!sellingproduct) {
+            return res.status(400).json({
+                success: false,
+                data: [],
+                message: 'product not get'
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: sellingproduct,
+            message: 'product  get'
+        })
+
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            data: [],
+            message: 'internal server error at moreselling grt product ' + error.message
+        })
+    }
+}
 
 module.exports = {
     getallorder,
@@ -268,7 +320,8 @@ module.exports = {
     addorder,
     updateshippingaddress,
     updateorderstatus,
-    deleteorder
+    deleteorder,
+    moreselling
 }
 
 //  "product_id":"69ddbecbfdcedc9c300fda20",

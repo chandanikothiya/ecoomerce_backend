@@ -75,10 +75,10 @@ const addCart = async (req, res) => {
             })
         }
 
-
         // cartdata = await checkuser.products
 
         const index = checkuser.products.findIndex((p) => p.variant_id.toString() === variant_id);
+        console.log(index)
 
         if (index === -1) {
             checkuser.products.push({ product_id: product_id,variant_id:variant_id })

@@ -34,8 +34,8 @@ const productsschema = mongoose.Schema({
             size: [{
                 type: String,
             }],
-            quantity:{
-                type:Number
+            quantity: {
+                type: Number
             },
             isFlashSale: {
                 type: Boolean,
@@ -55,6 +55,10 @@ const productsschema = mongoose.Schema({
             flashEnd: {
                 type: Date,
                 default: null
+            },
+            createdAt: {
+                type: Date,
+                default: Date.now
             }
         }
     ],

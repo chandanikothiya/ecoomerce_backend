@@ -1,3 +1,4 @@
+const { default: mongoose } = require('mongoose');
 const products = require('../model/products.model')
 const fs = require('fs')
 
@@ -148,6 +149,7 @@ const updateproducts = async (req, res) => {
             const finalImages = [...bodyImages, ...newImages];
 
             updatedVariants.push({
+                _id: checkproduct.variants[i]?._id || new mongoose.Types.ObjectId(),
                 color: v.color,
                 images: finalImages,
                 size: v.size,
@@ -155,7 +157,9 @@ const updateproducts = async (req, res) => {
                 isFlashSale: v.isFlashSale,
                 flashPrice: v.flashPrice,
                 flashStart: v.flashStart,
-                flashEnd: v.flashEnd
+                flashEnd: v.flashEnd,
+                createdAt:
+                    checkproduct.variants[i]?.createdAt || new Date(),
             });
 
         });
@@ -288,9 +292,51 @@ const deleteproducts = async (req, res) => {
     }
 }
 
+
+
+// const updateVariantDates = async (req, res) => {
+
+//     try {
+
+//         const productsdata = await products.find();
+
+//         for (const product of productsdata) {
+
+//             const updatedVariants = product.variants.map((v) => {
+
+//                 const obj = v.toObject();
+
+//                 // force set product createdAt
+//                 obj.createdAt = product.createdAt;
+
+//                 return obj;
+//             });
+
+//             await products.updateOne(
+//                 { _id: product._id },
+//                 { $set: { variants: updatedVariants } }
+//             );
+//         }
+
+//         return res.status(200).json({
+//             success: true,
+//             message: "Variant dates updated"
+//         });
+
+//     } catch (error) {
+
+//         return res.status(500).json({
+//             success: false,
+//             message: error.message
+//         });
+//     }
+// };
+
 module.exports = {
     addproducts,
     getproducts,
     updateproducts,
-    deleteproducts
+    deleteproducts,
+    
+    // updateVariantDates
 }
