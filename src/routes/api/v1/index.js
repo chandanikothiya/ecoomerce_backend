@@ -11,6 +11,7 @@ const orderRouter = require('./order.routes')
 const addressRouter = require('./address.routes')
 const paymentRouter = require('./payment.routes')
 const couponRouter = require('./coupon.routes')
+const subscribe = require('./subscribeemail.routes')
 
 //http://localhost:8080/api/v1/category
 router.use('/category',categoryRouter);
@@ -41,5 +42,8 @@ router.use('/payment',paymentRouter)
 
 //http://localhost:8080/api/v1/coupon
 router.use('/coupon',couponRouter)
+
+//http://localhost:8080/api/v1/subscribe
+router.use('/subscribe',subscribe)
 
 module.exports = router;
