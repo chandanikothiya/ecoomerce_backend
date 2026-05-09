@@ -1,4 +1,5 @@
 const coupon = require('../model/coupon.model')
+const product = require('../model/products.model')
 
 const getAllcoupon = async (req, res) => {
     try {
@@ -225,18 +226,31 @@ const checkcoupon = async (req, res) => {
             })
         }
 
+        const hasFlashSale = req.body.products?.some(
+            (v) => v?.isFlashSale
+        );
+
+        if (hasFlashSale) {
+            return res.status(400).json({
+                success: false,
+                data: [],
+                message:
+                    "Coupon not valid on flash sale products"
+            });
+        }
+
         const date = new Date();
         const endDate = new Date(check.enddate);
-        console.log(date,check.enddate)
+        console.log(date, check.enddate)
 
         if (date <= endDate) {
             return res.status(200).json({
                 success: true,
-                data:check,
+                data: check,
                 message: 'coupon  found'
             })
-        } else {            
-             return res.status(400).json({
+        } else {
+            return res.status(400).json({
                 success: false,
                 data: [],
                 message: 'coupon is expired'
@@ -264,4 +278,3 @@ module.exports = {
     changeactive
 }
 
-  
